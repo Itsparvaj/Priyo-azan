@@ -88,4 +88,18 @@ class ExampleRobolectricTest {
         receiver.onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
         receiver.onReceive(context, Intent(Intent.ACTION_TIMEZONE_CHANGED))
     }
+
+    @Test
+    fun repository_locksOfficialUpdateRepositoryOnInitialization() = runTest {
+        db.appSettingsDao().upsert(
+            com.example.database.AppSettingsEntity(
+                githubRepoOwner = "old-owner",
+                githubRepoName = "old-repo"
+            )
+        )
+        repo.ensureInitialized()
+        val settings = repo.getSettingsSnapshot()
+        assertEquals("Itsparvaj", settings.githubRepoOwner)
+        assertEquals("Priyo-azan", settings.githubRepoName)
+    }
 }

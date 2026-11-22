@@ -40,12 +40,16 @@ class PriyoAzanRepository(private val db: PriyoAzanDatabase) {
             if (existingSettings == null) {
                 settingsDao.upsert(AppSettingsEntity())
             } else if (existingSettings.fullAzanAudioId == "makkah_tone" ||
-                existingSettings.fajrAzanAudioId == "fajr_tone"
+                existingSettings.fajrAzanAudioId == "fajr_tone" ||
+                existingSettings.githubRepoOwner != "Itsparvaj" ||
+                existingSettings.githubRepoName != "Priyo-azan"
             ) {
                 settingsDao.upsert(
                     existingSettings.copy(
                         fullAzanAudioId = if (existingSettings.fullAzanAudioId == "makkah_tone") "mosque_classic" else existingSettings.fullAzanAudioId,
-                        fajrAzanAudioId = if (existingSettings.fajrAzanAudioId == "fajr_tone") "mosque_levant" else existingSettings.fajrAzanAudioId
+                        fajrAzanAudioId = if (existingSettings.fajrAzanAudioId == "fajr_tone") "mosque_levant" else existingSettings.fajrAzanAudioId,
+                        githubRepoOwner = "Itsparvaj",
+                        githubRepoName = "Priyo-azan"
                     )
                 )
             }

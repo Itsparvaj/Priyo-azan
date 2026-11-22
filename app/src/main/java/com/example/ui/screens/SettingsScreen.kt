@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,8 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.BatteryChargingFull
-import androidx.compose.material.icons.rounded.ExpandLess
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.GpsFixed
 import androidx.compose.material.icons.rounded.LocationCity
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -49,7 +46,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -99,7 +95,6 @@ fun SettingsScreen(
     onUpdateTheme: (ThemeMode) -> Unit,
     onUpdateLanguage: (AppLanguage) -> Unit,
     onUpdateFontScale: (FontScaleOption) -> Unit,
-    onUpdateGitHubRepo: (String, String) -> Unit,
     onCheckUpdates: () -> Unit,
     onDownloadUpdate: () -> Unit,
     onInstallUpdate: () -> Unit,
@@ -112,9 +107,6 @@ fun SettingsScreen(
     var showCityPicker by remember { mutableStateOf(false) }
     var showPrivacyDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
-    var showAdvancedRepo by remember { mutableStateOf(false) }
-    var repoOwner by remember(state.settings.githubRepoOwner) { mutableStateOf(state.settings.githubRepoOwner) }
-    var repoName by remember(state.settings.githubRepoName) { mutableStateOf(state.settings.githubRepoName) }
 
     val locationLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -456,12 +448,35 @@ fun SettingsScreen(
                 }
             }
 
-            // UPDATES & ABOUT (Developer repo inputs tucked neatly under Advanced toggle)
+            // UPDATES & ABOUT
             item {
                 SettingsSectionCard(title = strings.settingsUpdates) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "v${BuildConfig.VERSION_NAME}",
+                            style = MaterialTheme.typography.labelLarge.copy(fontFamily = JetBrainsMonoFamily),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = MaterialTheme.colorScheme.secondaryContainer
+                        ) {
+                            Text(
+                                text = strings.aboutPublisherText,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
                     Text(
-                        text = "v${BuildConfig.VERSION_NAME}",
-                        style = MaterialTheme.typography.labelLarge.copy(fontFamily = JetBrainsMonoFamily),
+                        text = strings.autoUpdateActiveNote,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
@@ -481,12 +496,18 @@ fun SettingsScreen(
                         val msg = when {
                             raw == "CHECKING" -> strings.updateChecking
                             raw == "NO_INTERNET" -> strings.updateNoInternet
+                            raw == "NOT_FOUND" -> strings.updateNotFoundRepo
                             raw.startsWith("UP_TO_DATE:") -> "${strings.updateUpToDate} (${raw.removePrefix("UP_TO_DATE:")})"
                             raw.startsWith("AVAILABLE:") -> "${strings.updateAvailableTitle}: ${raw.removePrefix("AVAILABLE:")}"
                             raw.startsWith("ERROR:") -> raw.removePrefix("ERROR:")
                             else -> raw
                         }
-                        Text(msg, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                        val msgColor = if (raw.startsWith("ERROR:")) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
+                        Text(msg, style = MaterialTheme.typography.bodyMedium, color = msgColor)
                     }
 
                     state.availableUpdateManifest?.let { manifest ->
@@ -519,51 +540,6 @@ fun SettingsScreen(
                                     }
                                 }
                             }
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { showAdvancedRepo = !showAdvancedRepo }
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = strings.advancedOptions,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Icon(
-                            imageVector = if (showAdvancedRepo) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                            contentDescription = strings.advancedOptions,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    AnimatedVisibility(visible = showAdvancedRepo) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedTextField(
-                                value = repoOwner,
-                                onValueChange = {
-                                    repoOwner = it
-                                    onUpdateGitHubRepo(repoOwner, repoName)
-                                },
-                                label = { Text("GitHub Owner") },
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
-                            OutlinedTextField(
-                                value = repoName,
-                                onValueChange = {
-                                    repoName = it
-                                    onUpdateGitHubRepo(repoOwner, repoName)
-                                },
-                                label = { Text("Repository") },
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
                         }
                     }
 
@@ -606,7 +582,7 @@ fun SettingsScreen(
             onDismissRequest = { showAboutDialog = false },
             title = { Text(strings.aboutPriyoAzan) },
             text = {
-                Text("${strings.appName} v${BuildConfig.VERSION_NAME}\n\n${strings.tagline}\n\n${strings.offlineImportNotice}")
+                Text("${strings.appName} v${BuildConfig.VERSION_NAME}\n\n${strings.tagline}\n\n${strings.aboutPublisherText}\n\n${strings.offlineImportNotice}")
             },
             confirmButton = {
                 TextButton(onClick = { showAboutDialog = false }) { Text(strings.close) }

@@ -16,8 +16,8 @@ data class AppSettingsEntity(
     val languageCode: String = "en",
     val fullAzanAudioId: String = "mosque_classic",
     val fajrAzanAudioId: String = "mosque_levant",
-    val githubRepoOwner: String = "priyo-azan",
-    val githubRepoName: String = "priyo-azan-android",
+    val githubRepoOwner: String = "Itsparvaj",
+    val githubRepoName: String = "Priyo-azan",
     val lastUpdateCheckMillis: Long = 0L,
     val lastKnownLatestVersion: String? = null
 )

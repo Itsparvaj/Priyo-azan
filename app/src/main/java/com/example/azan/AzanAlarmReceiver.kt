@@ -56,7 +56,7 @@ class AzanAlarmReceiver : BroadcastReceiver() {
                 // Immediately schedule next day's occurrence for this and upcoming prayers
                 engine.schedulePrayerAlarms()
             } finally {
-                pendingResult.finish()
+                pendingResult?.finish()
             }
         }
     }

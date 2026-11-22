@@ -144,13 +144,19 @@ class PriyoAzanUnitTest {
 
     @Test
     fun githubUpdater_manifestParsingVersionCheckAndSha256() {
+        assertEquals("Itsparvaj", GitHubUpdateManager.OFFICIAL_GITHUB_OWNER)
+        assertEquals("Priyo-azan", GitHubUpdateManager.OFFICIAL_GITHUB_REPO)
+        assertEquals("PriyoBlog.com", AppStrings.forLanguage(AppLanguage.ENGLISH).aboutPublisherText)
+        assertEquals("PriyoBlog.com", AppStrings.forLanguage(AppLanguage.BENGALI).aboutPublisherText)
+        assertEquals("PriyoBlog.com", AppStrings.forLanguage(AppLanguage.ARABIC).aboutPublisherText)
+
         val json = """
             {
               "version": "1.2.0",
               "versionCode": 3,
               "platform": "android",
               "releaseNotes": "Improved Azan stability",
-              "apkUrl": "https://github.com/priyo-azan/priyo-azan-android/releases/download/v1.2.0/app-release.apk",
+              "apkUrl": "https://github.com/Itsparvaj/Priyo-azan/releases/download/v1.2.0/app-release.apk",
               "minimumSupportedVersion": "1.0.0",
               "sha256": "abc"
             }
@@ -171,6 +177,40 @@ class PriyoAzanUnitTest {
         } finally {
             temp.delete()
         }
+    }
+
+    @Test
+    fun githubUpdater_repoUrlParsingAndReleaseApiFallback() {
+        assertEquals("Itsparvaj" to "Priyo-azan", GitHubUpdateManager.parseRepoTarget("https://github.com/Itsparvaj/Priyo-azan"))
+        assertEquals("Itsparvaj" to "Priyo-azan", GitHubUpdateManager.parseRepoTarget("https://github.com/Itsparvaj/Priyo-azan.git/"))
+        assertEquals("Itsparvaj" to "Priyo-azan", GitHubUpdateManager.parseRepoTarget("Itsparvaj/Priyo-azan"))
+        assertEquals(null, GitHubUpdateManager.parseRepoTarget("invalid-only-one-part"))
+
+        val apiJson = """
+            {
+              "tag_name": "v1.1.0",
+              "name": "Priyo Azan v1.1.0",
+              "body": "Added Digital Tasbih & Masnoon Duas",
+              "draft": false,
+              "assets": [
+                {
+                  "name": "notes.txt",
+                  "browser_download_url": "https://github.com/Itsparvaj/Priyo-azan/releases/download/v1.1.0/notes.txt"
+                },
+                {
+                  "name": "priyo-azan-release.apk",
+                  "browser_download_url": "https://github.com/Itsparvaj/Priyo-azan/releases/download/v1.1.0/priyo-azan-release.apk",
+                  "digest": "sha256:deadbeef123456"
+                }
+              ]
+            }
+        """.trimIndent()
+        val parsed = GitHubUpdateManager.parseGitHubReleaseApi(apiJson)!!
+        assertEquals("1.1.0", parsed.version)
+        assertEquals("deadbeef123456", parsed.sha256)
+        assertTrue(parsed.apkUrl.endsWith(".apk"))
+        assertTrue(GitHubUpdateManager.isNewerVersion(parsed.versionCode, parsed.version, 1, "1.0"))
+        assertFalse(GitHubUpdateManager.isNewerVersion(0, "1.0", 1, "1.0"))
     }
 
     @Test

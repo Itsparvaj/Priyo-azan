@@ -264,7 +264,10 @@ private fun PriyoAzanMainScaffold(
                                 onNavigateSettings = { navigateSubRoute(PriyoRoutes.SETTINGS) },
                                 onOpenPrayers = { navigateTopLevel(PriyoRoutes.PRAYERS) },
                                 onTestAzanVoice = { viewModel.triggerTestAzanVoice() },
-                                onStopAzanService = { viewModel.stopAzanService() }
+                                onStopAzanService = { viewModel.stopAzanService() },
+                                onDownloadUpdate = { viewModel.downloadVerifiedUpdate() },
+                                onInstallUpdate = { viewModel.installVerifiedApk() },
+                                onDismissUpdate = { viewModel.dismissUpdateBanner() }
                             )
                         }
                         composable(PriyoRoutes.PRAYERS) {
@@ -348,7 +351,6 @@ private fun PriyoAzanMainScaffold(
                                 onUpdateTheme = { viewModel.updateThemeMode(it) },
                                 onUpdateLanguage = { viewModel.updateLanguage(it) },
                                 onUpdateFontScale = { viewModel.updateFontScale(it) },
-                                onUpdateGitHubRepo = { owner, name -> viewModel.updateGitHubRepo(owner, name) },
                                 onCheckUpdates = { viewModel.checkForUpdatesManually() },
                                 onDownloadUpdate = { viewModel.downloadVerifiedUpdate() },
                                 onInstallUpdate = { viewModel.installVerifiedApk() },

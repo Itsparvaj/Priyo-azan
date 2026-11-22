@@ -37,6 +37,7 @@ import com.example.spiritual.DailyMilestones
 import com.example.spiritual.DailyVerse
 import com.example.spiritual.SpiritualContent
 import com.example.updater.DownloadProgress
+import com.example.updater.GitHubUpdateManager
 import com.example.updater.UpdateCheckResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -593,18 +594,14 @@ class PriyoAzanViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun updateGitHubRepo(owner: String, repoName: String) {
-        viewModelScope.launch {
-            repo.updateSettings {
-                it.copy(githubRepoOwner = owner.trim(), githubRepoName = repoName.trim())
-            }
-        }
+    fun dismissUpdateBanner() {
+        availableManifestFlow.value = null
     }
 
     private suspend fun maybeAutoCheckUpdates() {
         val settings = repo.getSettingsSnapshot()
-        val twelveHoursMs = 12L * 60L * 60L * 1000L
-        if (System.currentTimeMillis() - settings.lastUpdateCheckMillis < twelveHoursMs) return
+        val sixHoursMs = 6L * 60L * 60L * 1000L
+        if (System.currentTimeMillis() - settings.lastUpdateCheckMillis < sixHoursMs) return
         if (!updateManager.isNetworkAvailable()) return
         checkUpdatesInternal(manual = false)
     }
@@ -616,13 +613,17 @@ class PriyoAzanViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private suspend fun checkUpdatesInternal(manual: Boolean) {
-        val settings = repo.getSettingsSnapshot()
         if (manual) updateStatusFlow.value = "CHECKING"
-        when (val result = updateManager.checkForUpdates(settings.githubRepoOwner, settings.githubRepoName)) {
+        val result = updateManager.checkForUpdates(
+            owner = GitHubUpdateManager.OFFICIAL_GITHUB_OWNER,
+            repo = GitHubUpdateManager.OFFICIAL_GITHUB_REPO
+        )
+        when (result) {
             is UpdateCheckResult.NoInternet -> {
                 if (manual) updateStatusFlow.value = "NO_INTERNET"
             }
             is UpdateCheckResult.UpToDate -> {
+                availableManifestFlow.value = null
                 repo.updateSettings {
                     it.copy(
                         lastUpdateCheckMillis = System.currentTimeMillis(),
@@ -649,7 +650,13 @@ class PriyoAzanViewModel(application: Application) : AndroidViewModel(applicatio
                 updateStatusFlow.value = "AVAILABLE:${result.manifest.version}"
             }
             is UpdateCheckResult.Error -> {
-                if (manual) updateStatusFlow.value = "ERROR:${result.message}"
+                if (manual) {
+                    updateStatusFlow.value = if (result.message == "REPO_OR_RELEASE_NOT_FOUND") {
+                        "NOT_FOUND"
+                    } else {
+                        "ERROR:${result.message}"
+                    }
+                }
             }
         }
     }

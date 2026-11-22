@@ -51,7 +51,7 @@ class BootAndTimeChangeReceiver : BroadcastReceiver() {
                 val engine = AzanEngine(context, repo)
                 engine.rescheduleAllAlarms()
             } finally {
-                pendingResult.finish()
+                pendingResult?.finish()
             }
         }
     }

@@ -33,8 +33,10 @@ import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.NotificationsOff
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Stop
+import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.VolumeUp
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -43,6 +45,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -78,6 +81,7 @@ import com.example.ui.theme.StatusSuccess
 import com.example.ui.theme.StatusWarning
 import com.example.ui.theme.drawIslamicGeometricLattice
 import com.example.ui.viewmodel.PriyoAzanUiState
+import com.example.updater.DownloadProgress
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -96,6 +100,9 @@ fun HomeScreen(
     onOpenPrayers: () -> Unit,
     onTestAzanVoice: () -> Unit = {},
     onStopAzanService: () -> Unit = {},
+    onDownloadUpdate: () -> Unit = {},
+    onInstallUpdate: () -> Unit = {},
+    onDismissUpdate: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val strings = LocalAppStrings.current
@@ -400,6 +407,81 @@ fun HomeScreen(
                         tag = "shortcut_calendar",
                         modifier = Modifier.weight(1f)
                     )
+                }
+            }
+
+            // Automatic Update Available Banner Card (shown automatically when GitHub Release is detected)
+            state.availableUpdateManifest?.let { manifest ->
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("home_update_available_card"),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.SystemUpdate,
+                                        contentDescription = strings.updateAvailableTitle,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = "${strings.updateAvailableTitle} • v${manifest.version}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                                TextButton(onClick = onDismissUpdate) {
+                                    Text(strings.dismissLabel)
+                                }
+                            }
+                            if (manifest.releaseNotes.isNotBlank()) {
+                                Text(
+                                    text = manifest.releaseNotes,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            when (val dl = state.downloadProgress) {
+                                is DownloadProgress.InProgress -> {
+                                    val frac = if (dl.totalBytes > 0) dl.bytesRead.toFloat() / dl.totalBytes else 0f
+                                    LinearProgressIndicator(progress = { frac }, modifier = Modifier.fillMaxWidth())
+                                }
+                                is DownloadProgress.VerifiedReady -> {
+                                    Button(onClick = onInstallUpdate, modifier = Modifier.fillMaxWidth().minimumInteractiveComponentSize()) {
+                                        Text(strings.installUpdate)
+                                    }
+                                }
+                                is DownloadProgress.Failed -> {
+                                    Text(dl.reason, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+                                    Button(onClick = onDownloadUpdate, modifier = Modifier.fillMaxWidth().minimumInteractiveComponentSize()) {
+                                        Text(strings.downloadAndVerify)
+                                    }
+                                }
+                                null -> {
+                                    Button(onClick = onDownloadUpdate, modifier = Modifier.fillMaxWidth().minimumInteractiveComponentSize()) {
+                                        Text(strings.downloadAndVerify)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
