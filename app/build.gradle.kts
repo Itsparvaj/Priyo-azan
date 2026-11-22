@@ -78,6 +78,9 @@ android {
           test.systemProperty("robolectric.offline", "true")
           test.systemProperty("robolectric.dependency.dir", cachedDir.absolutePath)
         }
+        test.testLogging {
+          exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        }
       }
     }
   }
