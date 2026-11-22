@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Priyo Azan</string>
+    <string name="notif_channel_azan_name">Prayer Azan Alerts</string>
+    <string name="notif_channel_azan_desc">Exact prayer time notifications and automatic Azan audio playback</string>
+    <string name="notif_channel_playback_name">Azan Audio Playback</string>
+    <string name="notif_channel_playback_desc">Active foreground notification while Azan audio is playing</string>
+    <string name="stop_azan">Stop Azan</string>
+</resources>

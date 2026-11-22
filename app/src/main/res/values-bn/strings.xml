@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">প্রিয় আজান</string>
+    <string name="notif_channel_azan_name">নামাজের আজান সতর্কতা</string>
+    <string name="notif_channel_azan_desc">সঠিক নামাজের সময় বিজ্ঞপ্তি এবং স্বয়ংক্রিয় আজান</string>
+    <string name="notif_channel_playback_name">আজান অডিও</string>
+    <string name="notif_channel_playback_desc">আজান চলাকালীন সক্রিয় বিজ্ঞপ্তি</string>
+    <string name="stop_azan">আজান বন্ধ করুন</string>
+</resources>

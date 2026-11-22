@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">بريو أذان</string>
+    <string name="notif_channel_azan_name">تنبيهات الأذان</string>
+    <string name="notif_channel_azan_desc">إشعارات أوقات الصلاة وتشغيل الأذان التلقائي</string>
+    <string name="notif_channel_playback_name">تشغيل صوت الأذان</string>
+    <string name="notif_channel_playback_desc">إشعار نشط أثناء تشغيل الأذان</string>
+    <string name="stop_azan">إيقاف الأذان</string>
+</resources>

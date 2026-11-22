@@ -1,0 +1,6 @@
+{
+  "name": "Priyo Azan",
+  "description": "Original offline Islamic prayer times, native automatic Azan alarms, Qibla compass, Hijri calendar, and offline Quran reader.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
