@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.GpsFixed
@@ -35,7 +36,6 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.UploadFile
-import androidx.compose.material.icons.rounded.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -321,7 +321,7 @@ fun SettingsScreen(
                                 .minimumInteractiveComponentSize()
                                 .testTag("settings_test_mosque_azan")
                         ) {
-                            Icon(Icons.Rounded.VolumeUp, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null)
                             Spacer(Modifier.width(6.dp))
                             Text(strings.testAzanVoice)
                         }

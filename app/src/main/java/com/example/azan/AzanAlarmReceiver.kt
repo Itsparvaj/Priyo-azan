@@ -55,6 +55,8 @@ class AzanAlarmReceiver : BroadcastReceiver() {
 
                 // Immediately schedule next day's occurrence for this and upcoming prayers
                 engine.schedulePrayerAlarms()
+            } catch (t: Throwable) {
+                android.util.Log.e("AzanAlarmReceiver", "Failed to handle prayer alarm", t)
             } finally {
                 pendingResult?.finish()
             }

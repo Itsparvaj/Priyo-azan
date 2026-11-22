@@ -138,7 +138,7 @@ class AzanEngine(
 
             val triggerMillis = targetEntry.time.toInstant().toEpochMilli()
             val audioId = when {
-                SoundMode.fromName(pref!!.soundMode) == SoundMode.GENTLE_CHIME -> "gentle_chime"
+                SoundMode.fromName(pref.soundMode) == SoundMode.GENTLE_CHIME -> "gentle_chime"
                 key == PrayerKey.FAJR -> settings.fajrAzanAudioId
                 else -> settings.fullAzanAudioId
             }

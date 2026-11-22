@@ -83,10 +83,10 @@ class ExampleRobolectricTest {
         assertEquals(5, secondRun.size)
         assertEquals(countAfterFirst, shadowAlarm.scheduledAlarms.size)
 
-        // Verify BootAndTimeChangeReceiver handles BOOT_COMPLETED cleanly
+        // Verify BootAndTimeChangeReceiver handles BOOT_COMPLETED and TIMEZONE_CHANGED cleanly
         val receiver = BootAndTimeChangeReceiver()
-        receiver.onReceive(context, Intent(Intent.ACTION_BOOT_COMPLETED))
-        receiver.onReceive(context, Intent(Intent.ACTION_TIMEZONE_CHANGED))
+        receiver.handleIntent(context, Intent(Intent.ACTION_BOOT_COMPLETED), repo)
+        receiver.handleIntent(context, Intent(Intent.ACTION_TIMEZONE_CHANGED), repo)
     }
 
     @Test
